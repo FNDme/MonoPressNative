@@ -1,6 +1,6 @@
 import { useStore } from '~/store/store';
 import debounce from 'lodash.debounce';
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { DOMParser } from 'xmldom';
 
 import type { FeedCache, Post } from '~/types/feed';
@@ -11,7 +11,6 @@ const CACHE_DURATION = 5 * 60 * 1000;
 
 interface RssContextType {
   posts: Post[];
-  postsByFeed: Record<string, Post[]>;
   loading: boolean;
   error: string | null;
   refreshFeeds: () => Promise<void>;
@@ -22,48 +21,43 @@ const RssContext = createContext<RssContextType | undefined>(undefined);
 export function RssProvider({ children }: { children: React.ReactNode }) {
   const { urls } = useStore();
   const [posts, setPosts] = useState<Post[]>([]);
-  const [postsByFeed, setPostsByFeed] = useState<Record<string, Post[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [feedCache, setFeedCache] = useState<FeedCache>({});
 
   const fetchSingleFeed = useCallback(
     async (url: string): Promise<Post[]> => {
-      // Check cache first
       const cachedData = feedCache[url];
       if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
         return cachedData.data;
       }
 
       try {
-        const xml = await fetch(url);
-        const xmlText = await xml.text();
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const xmlText = await response.text();
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlText, 'text/xml') as unknown as XMLDocument;
         const posts = parseFeed(xmlDoc);
 
-        // Update cache
         setFeedCache((prev) => ({
           ...prev,
-          [url]: {
-            data: posts,
-            timestamp: Date.now(),
-          },
+          [url]: { data: posts, timestamp: Date.now() },
         }));
 
         return posts;
       } catch (error) {
         console.error(`Error fetching feed from ${url}:`, error);
-        throw error;
+        return [];
       }
     },
     [feedCache]
   );
 
   const fetchFeeds = useCallback(async () => {
-    if (urls.length === 0) {
+    if (!urls.length) {
       setPosts([]);
-      setPostsByFeed({});
       setLoading(false);
       return;
     }
@@ -72,27 +66,20 @@ export function RssProvider({ children }: { children: React.ReactNode }) {
     setError(null);
 
     try {
-      const feedPromises = urls.map((url) =>
-        fetchSingleFeed(url).catch((error) => {
-          console.error(`Error fetching feed from ${url}:`, error);
-          return []; // Return empty array for failed feeds
-        })
-      );
+      const results = await Promise.all(urls.map(fetchSingleFeed));
+      const uniquePosts = new Map<string, Post>();
 
-      const results = await Promise.all(feedPromises);
-
-      // Create a map of posts by feed URL
-      const postsByFeedMap: Record<string, Post[]> = {};
-      urls.forEach((url, index) => {
-        postsByFeedMap[url] = results[index];
+      results.flat().forEach((post) => {
+        if (!uniquePosts.has(post.link)) {
+          uniquePosts.set(post.link, post);
+        }
       });
 
-      // Update posts by feed
-      setPostsByFeed(postsByFeedMap);
+      const allPosts = Array.from(uniquePosts.values()).sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
 
-      // Combine and sort all posts
-      const allPosts = results.flat();
-      setPosts(allPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+      setPosts(allPosts);
     } catch (error) {
       setError('Failed to fetch feeds');
       console.error('Error fetching feeds:', error);
@@ -101,32 +88,30 @@ export function RssProvider({ children }: { children: React.ReactNode }) {
     }
   }, [urls, fetchSingleFeed]);
 
-  // Debounce the fetch operation
-  const debouncedFetch = useCallback(() => {
-    const debounced = debounce(fetchFeeds, 500);
-    debounced();
-    return () => debounced.cancel();
-  }, [fetchFeeds]);
+  // Create a stable debounced function
+  const debouncedFetch = useMemo(() => debounce(fetchFeeds, 500), [fetchFeeds]);
 
   useEffect(() => {
-    const cleanup = debouncedFetch();
-    return cleanup;
+    debouncedFetch();
+    return () => debouncedFetch.cancel();
   }, [debouncedFetch]);
 
-  const value = {
-    posts,
-    postsByFeed,
-    loading,
-    error,
-    refreshFeeds: fetchFeeds,
-  };
+  const value = useMemo(
+    () => ({
+      posts,
+      loading,
+      error,
+      refreshFeeds: fetchFeeds,
+    }),
+    [posts, loading, error, fetchFeeds]
+  );
 
   return <RssContext.Provider value={value}>{children}</RssContext.Provider>;
 }
 
 export function useRss() {
   const context = useContext(RssContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useRss must be used within a RssProvider');
   }
   return context;

@@ -100,7 +100,7 @@ export async function parseArticle(url: string): Promise<ArticleResponse> {
     }
 
     // Process images more carefully
-    const images = mainContent.getElementsByTagName('img');
+    const images = Array.from(mainContent.getElementsByTagName('img'));
 
     // Process standalone images
     for (const img of images) {
@@ -147,7 +147,7 @@ export async function parseArticle(url: string): Promise<ArticleResponse> {
     }
 
     // Process figures more carefully
-    const figures = mainContent.getElementsByTagName('figure');
+    const figures = Array.from(mainContent.getElementsByTagName('figure'));
 
     for (const figure of figures) {
       const hasImages = figure.getElementsByTagName('img').length > 0;
@@ -160,6 +160,7 @@ export async function parseArticle(url: string): Promise<ArticleResponse> {
     let processedContent = mainContent.innerHTML
       .replace(/<head>.*?<\/head>/g, '') // Remove head tags
       .replace(/<body>.*?<\/body>/g, '') // Remove body tags
+      .replace(/<svg[\s\S]*?<\/svg>/g, '') // Remove SVG elements
       .trim();
 
     // Check if we have content after processing
@@ -167,8 +168,6 @@ export async function parseArticle(url: string): Promise<ArticleResponse> {
       console.error('No content found after processing');
       throw new Error('No content found in the article');
     }
-
-    console.log(processedContent);
 
     return {
       title: title,

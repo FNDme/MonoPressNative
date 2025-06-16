@@ -1,5 +1,4 @@
 import { Dimensions, ScrollView, Image, View, Linking, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card, CardTitle, CardHeader, CardContent } from '~/components/ui/card';
 import { useRoute } from '@react-navigation/native';
 import { useEffect, useState, useMemo } from 'react';
@@ -15,6 +14,7 @@ import { Globe } from '~/lib/icons/Globe';
 import { User } from '~/lib/icons/User';
 import { AlertCircle } from '~/lib/icons/AlertCircle';
 import { Skeleton } from '~/components/ui/skeleton';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Article {
   title: string;
@@ -47,7 +47,7 @@ const customRenderers = {
   h1: (props: any) => {
     const { tnode, TNodeChildrenRenderer } = props;
     return (
-      <Text {...defaultTextProps} className="mb-4 text-4xl font-bold text-foreground">
+      <Text {...defaultTextProps} className="mb-4 text-2xl font-bold text-foreground">
         <TNodeChildrenRenderer tnode={tnode} />
       </Text>
     );
@@ -55,7 +55,7 @@ const customRenderers = {
   h2: (props: any) => {
     const { tnode, TNodeChildrenRenderer } = props;
     return (
-      <Text {...defaultTextProps} className="mb-3.5 text-3xl font-bold text-foreground">
+      <Text {...defaultTextProps} className="mb-3.5 text-xl font-bold text-foreground">
         <TNodeChildrenRenderer tnode={tnode} />
       </Text>
     );
@@ -63,7 +63,7 @@ const customRenderers = {
   h3: (props: any) => {
     const { tnode, TNodeChildrenRenderer } = props;
     return (
-      <Text {...defaultTextProps} className="mb-3 text-2xl font-bold text-foreground">
+      <Text {...defaultTextProps} className="mb-3 text-lg font-bold text-foreground">
         <TNodeChildrenRenderer tnode={tnode} />
       </Text>
     );
@@ -156,6 +156,10 @@ const customHTMLElementModels = {
     contentModel: HTMLContentModel.block,
     isVoid: true,
   }),
+  svg: HTMLElementModel.fromCustomModel({
+    tagName: 'svg',
+    contentModel: HTMLContentModel.block,
+  }),
 };
 
 const SkeletonLoader = () => {
@@ -205,7 +209,11 @@ export const ReaderContent = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const contentWidth = useMemo(() => Dimensions.get('window').width, []);
+  const contentWidth = useMemo(() => {
+    const screenWidth = Dimensions.get('screen').width;
+    // Account for card padding (p-4 = 16px) and screen padding (p-4 = 16px)
+    return screenWidth - 64;
+  }, []);
 
   useEffect(() => {
     const getPostFromUrl = async () => {
@@ -260,8 +268,8 @@ export const ReaderContent = () => {
           enableExperimentalBRCollapsing
           enableExperimentalGhostLinesPrevention
           defaultTextProps={defaultTextProps}
-          ignoredStyles={['fontFamily']}
-          ignoredDomTags={['script', 'style']}
+          ignoredStyles={['fontFamily', 'fontSize', 'lineHeight']}
+          ignoredDomTags={['script', 'style', 'svg']}
           customHTMLElementModels={customHTMLElementModels}
         />
       </View>
@@ -269,61 +277,63 @@ export const ReaderContent = () => {
   }, [article?.content, contentWidth]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background p-4">
-      <ScrollView>
+    <SafeAreaView className="flex-1 bg-background">
+      <ScrollView className="flex-1">
         {loading ? (
           <SkeletonLoader />
         ) : error ? (
           <ErrorState message={error} />
         ) : (
-          <Card>
-            <CardHeader>
-              {!!article?.image && (
-                <Image
-                  source={{ uri: article?.image }}
-                  className="mb-6 h-[200px] w-full rounded-lg"
-                  resizeMode="cover"
-                />
-              )}
-              <CardTitle>{article?.title || 'Untitled Article'}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <View className="mb-4 flex flex-col items-start justify-start gap-2 rounded-lg bg-muted p-4 text-muted-foreground">
-                <TouchableOpacity
-                  className="flex flex-row items-center gap-2 text-sm text-muted-foreground"
-                  onPress={() => Linking.openURL(article?.url || '')}>
-                  <ExternalLink size={16} className="text-muted-foreground" />
-                  <Text className="text-sm text-muted-foreground">Read original article</Text>
-                </TouchableOpacity>
-                <Separator className="bg-muted-foreground" />
-                {post?.date && (
-                  <View className="flex flex-row items-center gap-2">
-                    <Calendar size={16} className="text-muted-foreground" />
-                    <Text className="text-sm text-muted-foreground">
-                      {new Date(post?.date).toLocaleDateString() || 'Untitled Article'}
-                    </Text>
-                  </View>
+          <View className="p-4">
+            <Card>
+              <CardHeader>
+                {!!article?.image && (
+                  <Image
+                    source={{ uri: article?.image }}
+                    className="mb-6 h-[200px] w-full rounded-lg"
+                    resizeMode="cover"
+                  />
                 )}
-                {post?.author && (
-                  <View className="flex flex-row items-center gap-2">
-                    <User size={16} className="text-muted-foreground" />
-                    <Text className="text-sm text-muted-foreground">
-                      {post?.author || 'Untitled Article'}
-                    </Text>
-                  </View>
-                )}
-                {post?.source && (
-                  <View className="flex flex-row items-center gap-2">
-                    <Globe size={16} className="text-muted-foreground" />
-                    <Text className="text-sm text-muted-foreground">
-                      {post?.source?.sourceName || 'Untitled Article'}
-                    </Text>
-                  </View>
-                )}
-              </View>
-              {renderHtmlContent}
-            </CardContent>
-          </Card>
+                <View className="mb-4 flex flex-col items-start justify-start gap-2 rounded-lg bg-muted p-4 text-muted-foreground">
+                  <TouchableOpacity
+                    className="flex flex-row items-center gap-2 text-sm text-muted-foreground"
+                    onPress={() => Linking.openURL(article?.url || '')}>
+                    <ExternalLink size={16} className="text-muted-foreground" />
+                    <Text className="text-sm text-muted-foreground">Read original article</Text>
+                  </TouchableOpacity>
+                  <Separator className="bg-muted-foreground" />
+                  {post?.date && (
+                    <View className="flex flex-row items-center gap-2">
+                      <Calendar size={16} className="text-muted-foreground" />
+                      <Text className="text-sm text-muted-foreground">
+                        {new Date(post?.date).toLocaleDateString() || 'Untitled Article'}
+                      </Text>
+                    </View>
+                  )}
+                  {post?.author && (
+                    <View className="flex flex-row items-center gap-2">
+                      <User size={16} className="text-muted-foreground" />
+                      <Text className="text-sm text-muted-foreground">
+                        {post?.author || 'Untitled Article'}
+                      </Text>
+                    </View>
+                  )}
+                  {post?.source && (
+                    <View className="flex flex-row items-center gap-2">
+                      <Globe size={16} className="text-muted-foreground" />
+                      <Text className="text-sm text-muted-foreground">
+                        {post?.source?.sourceName || 'Untitled Article'}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </CardHeader>
+              <CardContent>
+                <CardTitle>{article?.title || 'Untitled Article'}</CardTitle>
+                {renderHtmlContent}
+              </CardContent>
+            </Card>
+          </View>
         )}
       </ScrollView>
     </SafeAreaView>

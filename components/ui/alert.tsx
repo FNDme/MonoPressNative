@@ -27,7 +27,6 @@ function Alert({
   children,
   icon: Icon,
   iconSize = 16,
-  iconClassName,
   ...props
 }: ViewProps &
   VariantProps<typeof alertVariants> & {
@@ -54,7 +53,7 @@ function AlertTitle({ className, ...props }: React.ComponentProps<typeof Text>) 
   return (
     <Text
       className={cn(
-        'text-foreground mb-1 pl-7 text-base font-medium leading-none tracking-tight',
+        'mb-1 pl-7 text-base font-medium leading-none tracking-tight text-foreground',
         className
       )}
       {...props}
@@ -64,7 +63,7 @@ function AlertTitle({ className, ...props }: React.ComponentProps<typeof Text>) 
 
 function AlertDescription({ className, ...props }: React.ComponentProps<typeof Text>) {
   return (
-    <Text className={cn('text-foreground pl-7 text-sm leading-relaxed', className)} {...props} />
+    <Text className={cn('pl-7 text-sm leading-relaxed text-foreground', className)} {...props} />
   );
 }
 

@@ -5,14 +5,20 @@ import { CalendarDays } from '~/lib/icons/CalendarDays';
 import { EyeOff } from '~/lib/icons/EyeOff';
 import { Globe } from '~/lib/icons/Globe';
 import { User } from '~/lib/icons/User';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import { decode } from 'html-entities';
+import { RootStackNavigationProp } from '~/App';
+import { Bookmark } from '~/lib/icons/Bookmark';
+import { BookmarkCheck } from '~/lib/icons/BookmarkCheck';
+import { Button } from '../ui/button';
+import { cn } from '~/lib/utils';
 
 export default function PostCard({ post, className }: { post: Post; className?: string }) {
   const { link, title, description, image, tags, date, author, source } = post;
-  const { discardId, undiscardId, discardedIds } = useStore();
-  const navigation = useNavigation<NavigationProp<any>>();
+  const { discardId, undiscardId, discardedIds, addBookmark, removeBookmark, isBookmarked } =
+    useStore();
+  const navigation = useNavigation<RootStackNavigationProp>();
 
   const handleToggleDiscard = () => {
     if (discardedIds.includes(link)) {
@@ -22,23 +28,46 @@ export default function PostCard({ post, className }: { post: Post; className?: 
     }
   };
 
+  const handleToggleBookmark = () => {
+    if (isBookmarked(post.id)) {
+      removeBookmark(post.id);
+    } else {
+      addBookmark(post);
+    }
+  };
+
   const handlePress = () => {
     navigation.navigate('Reader', { url: link });
   };
 
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.9}>
-      <Card className="overflow-hidden">
-        <CardHeader className="p-0">
+      <Card className={cn('overflow-hidden', className)}>
+        <CardHeader className="min-h-10 p-0">
           <View className="relative">
             {!!image && (
               <Image source={{ uri: image }} className="h-[200px] w-full" resizeMode="cover" />
             )}
-            <TouchableOpacity
-              className="bg-background/90 absolute right-2 top-2 rounded-full p-2"
-              onPress={handleToggleDiscard}>
-              <EyeOff size={16} className="text-foreground" />
-            </TouchableOpacity>
+            <View className="absolute right-2 top-2 flex-row gap-2">
+              <Button
+                variant="default"
+                size="icon"
+                className=" bg-background"
+                onPress={handleToggleBookmark}>
+                {isBookmarked(post.id) ? (
+                  <BookmarkCheck size={16} className="text-foreground" />
+                ) : (
+                  <Bookmark size={16} className="text-foreground" />
+                )}
+              </Button>
+              <Button
+                variant="default"
+                size="icon"
+                className=" bg-background"
+                onPress={handleToggleDiscard}>
+                <EyeOff size={16} className="text-foreground" />
+              </Button>
+            </View>
           </View>
         </CardHeader>
 
@@ -54,7 +83,9 @@ export default function PostCard({ post, className }: { post: Post; className?: 
             </View>
           )}
 
-          <Text className="text-sm leading-5 text-muted-foreground">{decode(description)}</Text>
+          <Text numberOfLines={4} className="text-base leading-5 text-muted-foreground">
+            {decode(description)}
+          </Text>
         </CardContent>
 
         <CardFooter>

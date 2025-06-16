@@ -1,6 +1,7 @@
 /* eslint-env node */
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
+const unusedImports = require('eslint-plugin-unused-imports');
 
 module.exports = defineConfig([
   expoConfig,
@@ -8,8 +9,21 @@ module.exports = defineConfig([
     ignores: ['dist/*'],
   },
   {
+    plugins: {
+      'unused-imports': unusedImports,
+    },
     rules: {
       'react/display-name': 'off',
+      'unused-imports/no-unused-imports': 'error',
+      'unused-imports/no-unused-vars': [
+        'warn',
+        {
+          vars: 'all',
+          varsIgnorePattern: '^_',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
+        },
+      ],
     },
   },
 ]);

@@ -1,0 +1,40 @@
+06-13 16:58:25.083 24992 24992 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 24992
+06-13 16:58:28.630 25123 25123 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 25123
+06-13 16:58:42.045 25648 25648 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 25648
+06-13 16:58:43.260 25732 25732 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 25732
+06-13 16:58:44.259 25807 25807 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 25807
+06-13 17:08:29.311 29736 29736 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 29736
+06-13 17:08:31.791 29910 29910 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 29910
+06-13 17:08:40.827 30152 30152 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 30152
+06-13 22:08:41.913 17358 17358 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 17358
+06-13 22:08:45.459 17515 17515 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 17515
+06-13 22:13:24.928 26682 26682 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 26682
+06-16 10:56:10.779 25325 25325 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 25325
+06-16 10:57:24.128 26693 26693 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 26693
+06-16 10:57:27.845 26851 26851 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 26851
+06-16 11:00:16.275 28728 28728 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 28728
+06-16 11:00:24.129 28844 28844 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 28844
+06-16 11:19:48.381  9943  9943 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 9943
+06-16 12:00:39.262 26068 26068 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 26068
+06-16 12:00:41.576 26163 26163 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 26163
+06-16 12:01:01.732 27458 27458 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 27458
+06-16 12:01:27.865 28102 28102 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 28102
+06-16 12:01:29.979 28179 28179 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 28179
+06-16 12:13:19.894  7049  7049 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 7049
+06-16 12:13:36.551  7262  7262 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 7262
+06-16 12:13:36.647  1983  1983 E SurfaceFlinger: alpha changed 1.000 -> 0.000 - Surface(name=1705baa Application Error: com.gabrielluis.monopress)/@0x48f4b75 - animation-leash of window_animation#113040
+06-16 12:13:36.647  1983  1983 E SurfaceFlinger: alpha changed 0.000 -> 0.000 - Surface(name=1705baa Application Error: com.gabrielluis.monopress)/@0x48f4b75 - animation-leash of window_animation#113040
+06-16 12:13:36.664  1983  1983 E SurfaceFlinger: alpha changed 0.000 -> 0.223 - Surface(name=1705baa Application Error: com.gabrielluis.monopress)/@0x48f4b75 - animation-leash of window_animation#113040
+06-16 12:15:50.118  8807  8807 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 8807
+06-16 12:16:17.715  9335  9335 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 9335
+06-16 12:16:17.814  1983  1983 E SurfaceFlinger: alpha changed 1.000 -> 0.000 - Surface(name=c08338c Application Error: com.gabrielluis.monopress)/@0x30f2254 - animation-leash of window_animation#113211
+06-16 12:16:17.814  1983  1983 E SurfaceFlinger: alpha changed 0.000 -> 0.000 - Surface(name=c08338c Application Error: com.gabrielluis.monopress)/@0x30f2254 - animation-leash of window_animation#113211
+06-16 12:16:17.831  1983  1983 E SurfaceFlinger: alpha changed 0.000 -> 0.223 - Surface(name=c08338c Application Error: com.gabrielluis.monopress)/@0x30f2254 - animation-leash of window_animation#113211
+06-16 12:16:21.427  1983  1983 E SurfaceFlinger: alpha changed 0.070 -> 0.000 - Surface(name=c08338c Application Error: com.gabrielluis.monopress)/@0x30f2254 - animation-leash of window_animation#113217
+06-16 12:16:22.760  9529  9529 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 9529
+06-16 12:20:55.424 13250 13250 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 13250
+06-16 12:20:58.187 13340 13340 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 13340
+06-16 12:20:58.268  1983  1983 E SurfaceFlinger: alpha changed 1.000 -> 0.000 - Surface(name=b07509b Application Error: com.gabrielluis.monopress)/@0x2c364b2 - animation-leash of window_animation#113522
+06-16 12:20:58.269  1983  1983 E SurfaceFlinger: alpha changed 0.000 -> 0.000 - Surface(name=b07509b Application Error: com.gabrielluis.monopress)/@0x2c364b2 - animation-leash of window_animation#113522
+06-16 12:20:58.285  1983  1983 E SurfaceFlinger: alpha changed 0.000 -> 0.206 - Surface(name=b07509b Application Error: com.gabrielluis.monopress)/@0x2c364b2 - animation-leash of window_animation#113522
+06-16 12:22:18.296 14353 14353 E AndroidRuntime: Process: com.gabrielluis.monopress, PID: 14353

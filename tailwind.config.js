@@ -9,6 +9,11 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
+      fontFamily: {
+        mono: ['var(--font-mono)'],
+        sans: ['var(--font-sans)'],
+        serif: ['var(--font-serif)'],
+      },
       colors: {
         background: 'var(--background)',
         foreground: 'var(--foreground)',

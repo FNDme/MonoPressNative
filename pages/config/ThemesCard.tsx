@@ -8,11 +8,11 @@ export const ThemesCard = () => {
       <CardHeader className="flex">
         <View className="flex flex-row items-center justify-between">
           <CardTitle>Theme</CardTitle>
-          <Text className="text-muted-foreground text-sm">
+          <Text className="text-sm text-muted-foreground">
             Themes by{' '}
             <Text
               onPress={() => Linking.openURL('https://tweakcn.com')}
-              className="text-primary text-sm underline">
+              className="text-sm text-primary underline">
               Tweakcn
             </Text>
           </Text>

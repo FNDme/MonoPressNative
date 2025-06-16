@@ -1,6 +1,6 @@
 import * as SelectPrimitive from '@rn-primitives/select';
 import * as React from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleProp, StyleSheet, TextStyle, View } from 'react-native';
 import { Check } from '~/lib/icons/Check';
 import { ChevronDown } from '~/lib/icons/ChevronDown';
 import { ChevronUp } from '~/lib/icons/ChevronUp';
@@ -27,7 +27,7 @@ function SelectTrigger({
     <SelectPrimitive.Trigger
       ref={ref}
       className={cn(
-        'native:h-12 border-input bg-background web:ring-offset-background text-muted-foreground web:focus:ring-ring flex h-10 flex-row items-center justify-between rounded-md border px-3 py-2 text-sm web:focus:outline-none web:focus:ring-2 web:focus:ring-offset-2 [&>span]:line-clamp-1',
+        'native:h-12 flex h-10 flex-row items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground web:ring-offset-background web:focus:outline-none web:focus:ring-2 web:focus:ring-ring web:focus:ring-offset-2 [&>span]:line-clamp-1',
         props.disabled && 'opacity-50 web:cursor-not-allowed',
         className
       )}
@@ -88,7 +88,7 @@ function SelectContent({
       <SelectPrimitive.Overlay style={Platform.OS !== 'web' ? StyleSheet.absoluteFill : undefined}>
         <SelectPrimitive.Content
           className={cn(
-            'border-border bg-popover shadow-foreground/10 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-96 min-w-[8rem] rounded-md border px-1 py-2 shadow-md',
+            'shadow-foreground/10 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-96 min-w-[8rem] rounded-md border border-border bg-popover px-1 py-2 shadow-md',
             position === 'popper' &&
               'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
             open
@@ -123,7 +123,7 @@ function SelectLabel({
   return (
     <SelectPrimitive.Label
       className={cn(
-        'native:pb-2 native:pl-10 text-popover-foreground native:text-base py-1.5 pl-8 pr-2 text-sm font-semibold',
+        'native:pb-2 native:pl-10 native:text-base py-1.5 pl-8 pr-2 text-sm font-semibold text-popover-foreground',
         className
       )}
       {...props}
@@ -133,15 +133,16 @@ function SelectLabel({
 
 function SelectItem({
   className,
-  children,
+  textStyle,
   ...props
 }: SelectPrimitive.ItemProps & {
   ref?: React.RefObject<SelectPrimitive.ItemRef>;
+  textStyle?: StyleProp<TextStyle>;
 }) {
   return (
     <SelectPrimitive.Item
       className={cn(
-        'web:group native:py-2 native:pl-10 web:hover:bg-accent/50 active:bg-accent web:focus:bg-accent relative flex w-full flex-row items-center rounded-sm py-1.5 pl-8 pr-2 web:cursor-default web:select-none web:outline-none',
+        'web:group native:py-2 native:pl-10 web:hover:bg-accent/50 relative flex w-full flex-row items-center rounded-sm py-1.5 pl-8 pr-2 active:bg-accent web:cursor-default web:select-none web:outline-none web:focus:bg-accent',
         props.disabled && 'opacity-50 web:pointer-events-none',
         className
       )}
@@ -151,7 +152,10 @@ function SelectItem({
           <Check size={16} strokeWidth={3} className="text-popover-foreground" />
         </SelectPrimitive.ItemIndicator>
       </View>
-      <SelectPrimitive.ItemText className="native:text-lg text-popover-foreground native:text-base web:group-focus:text-accent-foreground text-sm" />
+      <SelectPrimitive.ItemText
+        className="native:text-base text-sm text-popover-foreground web:group-focus:text-accent-foreground"
+        style={textStyle}
+      />
     </SelectPrimitive.Item>
   );
 }
@@ -163,7 +167,7 @@ function SelectSeparator({
   ref?: React.RefObject<SelectPrimitive.SeparatorRef>;
 }) {
   return (
-    <SelectPrimitive.Separator className={cn('bg-muted -mx-1 my-1 h-px', className)} {...props} />
+    <SelectPrimitive.Separator className={cn('-mx-1 my-1 h-px bg-muted', className)} {...props} />
   );
 }
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { vars, useColorScheme } from 'nativewind';
 import { useStore } from '~/store/store';
-import { defaultPresets } from '~/themes/theme-presets';
+import { defaultPresets } from '~/constants/theme-presets';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { selectedThemePreset } = useStore();

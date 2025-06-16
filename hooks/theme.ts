@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useStore } from '~/store/store';
-import { defaultPresets } from '~/themes/theme-presets';
+import { defaultPresets } from '~/constants/theme-presets';
 import { useColorScheme, vars } from 'nativewind';
 
 export function useTheme() {
