@@ -144,6 +144,19 @@ const customRenderers = {
       </TouchableOpacity>
     );
   },
+  img: (props: any) => {
+    const { tnode } = props;
+    const src = tnode.attributes?.src;
+    if (!src) return null;
+
+    return (
+      <Image
+        source={{ uri: src }}
+        height={tnode.attributes?.height > 200 ? 200 : tnode.attributes?.height}
+        className="w-full rounded-lg"
+      />
+    );
+  },
 };
 
 const customHTMLElementModels = {
@@ -329,7 +342,7 @@ export const ReaderContent = () => {
                 </View>
               </CardHeader>
               <CardContent>
-                <CardTitle>{article?.title || 'Untitled Article'}</CardTitle>
+                <CardTitle className="mb-6">{article?.title || 'Untitled Article'}</CardTitle>
                 {renderHtmlContent}
               </CardContent>
             </Card>
