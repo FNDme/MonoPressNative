@@ -20,6 +20,27 @@ export default function PostCard({ post, className }: { post: Post; className?: 
     useStore();
   const navigation = useNavigation<RootStackNavigationProp>();
 
+  const formatDate = (dateString: string) => {
+    const postDate = new Date(dateString);
+    const today = new Date();
+
+    const isToday = postDate.toDateString() === today.toDateString();
+
+    if (isToday) {
+      return postDate.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+    } else {
+      return postDate.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: postDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+      });
+    }
+  };
+
   const handleToggleDiscard = () => {
     if (discardedIds.includes(link)) {
       undiscardId(link);
@@ -93,9 +114,7 @@ export default function PostCard({ post, className }: { post: Post; className?: 
             {date && (
               <View className="flex-row items-center gap-1">
                 <CalendarDays size={16} className="text-muted-foreground" />
-                <Text className="text-xs text-muted-foreground">
-                  {new Date(date).toLocaleDateString()}
-                </Text>
+                <Text className="text-xs text-muted-foreground">{formatDate(date)}</Text>
               </View>
             )}
             {author && (
