@@ -10,7 +10,8 @@ npm-debug.*
 *.orig.*
 web-build/
 
-
+# Google Play Console
+monopress-*.json
 
 
 ios
