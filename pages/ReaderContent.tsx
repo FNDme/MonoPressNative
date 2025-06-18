@@ -279,12 +279,12 @@ export const ReaderContent = () => {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView className="flex-1">
-        {loading ? (
-          <SkeletonLoader />
-        ) : error ? (
-          <ErrorState message={error} />
-        ) : (
-          <View className="p-4">
+        <View className="p-4">
+          {loading ? (
+            <SkeletonLoader />
+          ) : error ? (
+            <ErrorState message={error} />
+          ) : (
             <Card>
               <CardHeader>
                 {!!article?.image && (
@@ -333,8 +333,8 @@ export const ReaderContent = () => {
                 {renderHtmlContent}
               </CardContent>
             </Card>
-          </View>
-        )}
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
