@@ -7,23 +7,17 @@ import type { Post } from '~/types/feed';
 interface Store {
   urls: string[];
   discardedIds: string[];
-  showDiscarded: boolean;
   bookmarkedPosts: Post[];
-  showBookmarks: boolean;
   addUrl: (url: string) => void;
   removeUrl: (url: string) => void;
   setUrls: (urls: string[]) => void;
   discardId: (id: string) => void;
   undiscardId: (id: string) => void;
-  setShowDiscarded: (showDiscarded: boolean) => void;
-  toggleDiscarded: () => void;
   selectedThemePreset: DefaultThemes;
   setSelectedThemePreset: (preset: DefaultThemes) => void;
   addBookmark: (post: Post) => void;
   removeBookmark: (postId: string) => void;
   isBookmarked: (postId: string) => boolean;
-  setShowBookmarks: (showBookmarks: boolean) => void;
-  toggleBookmarks: () => void;
 }
 
 export const useStore = create<Store>()(
@@ -31,9 +25,7 @@ export const useStore = create<Store>()(
     (set, get) => ({
       urls: [],
       discardedIds: [],
-      showDiscarded: false,
       bookmarkedPosts: [],
-      showBookmarks: false,
       addUrl: (url) => set((state) => ({ urls: [...state.urls, url] })),
       removeUrl: (url) => set((state) => ({ urls: state.urls.filter((u) => u !== url) })),
       setUrls: (urls) => set({ urls }),
@@ -44,11 +36,6 @@ export const useStore = create<Store>()(
       undiscardId: (undiscardedId) =>
         set((state) => ({
           discardedIds: state.discardedIds.filter((id) => id !== undiscardedId),
-        })),
-      setShowDiscarded: (showDiscarded) => set({ showDiscarded }),
-      toggleDiscarded: () =>
-        set((state) => ({
-          showDiscarded: !state.showDiscarded,
         })),
       selectedThemePreset: 'caffeine',
       setSelectedThemePreset: (preset) => set({ selectedThemePreset: preset }),
@@ -61,11 +48,6 @@ export const useStore = create<Store>()(
           bookmarkedPosts: state.bookmarkedPosts.filter((post) => post.id !== postId),
         })),
       isBookmarked: (postId) => get().bookmarkedPosts.some((post) => post.id === postId),
-      setShowBookmarks: (showBookmarks) => set({ showBookmarks }),
-      toggleBookmarks: () =>
-        set((state) => ({
-          showBookmarks: !state.showBookmarks,
-        })),
     }),
     {
       name: 'feed-store',

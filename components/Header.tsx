@@ -5,14 +5,22 @@ import { Settings } from '~/lib/icons/Settings';
 import { Button } from './ui/button';
 import { EyeOff } from '~/lib/icons/EyeOff';
 import { Eye } from '~/lib/icons/Eye';
-import { useStore } from '~/store/store';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackNavigationProp } from '~/App';
 import { Bookmark } from '~/lib/icons/Bookmark';
 import { BookmarkCheck } from '~/lib/icons/BookmarkCheck';
 
-export const Header = () => {
-  const { showDiscarded, toggleDiscarded, showBookmarks, toggleBookmarks } = useStore();
+export const Header = ({
+  onDiscardPress,
+  showDiscarded,
+  onBookmarkPress,
+  showBookmarks,
+}: {
+  onDiscardPress: () => void;
+  onBookmarkPress: () => void;
+  showDiscarded: boolean;
+  showBookmarks: boolean;
+}) => {
   const navigation = useNavigation<RootStackNavigationProp>();
 
   return (
@@ -20,7 +28,7 @@ export const Header = () => {
       <Text className="text-2xl font-bold text-foreground">MonoPress</Text>
       <View className="flex flex-row items-center gap-2">
         {showBookmarks ? null : (
-          <Button onPress={toggleDiscarded} variant="ghost" size="icon">
+          <Button onPress={onDiscardPress} variant="ghost" size="icon">
             {showDiscarded ? (
               <Eye size={20} className="text-foreground" />
             ) : (
@@ -29,7 +37,7 @@ export const Header = () => {
           </Button>
         )}
         {showDiscarded ? null : (
-          <Button onPress={toggleBookmarks} variant="ghost" size="icon">
+          <Button onPress={onBookmarkPress} variant="ghost" size="icon">
             {showBookmarks ? (
               <BookmarkCheck size={20} className="text-foreground" />
             ) : (

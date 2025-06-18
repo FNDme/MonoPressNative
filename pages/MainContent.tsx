@@ -5,10 +5,14 @@ import { useStore } from '~/store/store';
 import { EmptyState } from '../components/shared/EmptyState';
 import { Header } from '~/components/Header';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from 'react';
 
 export const MainContent = () => {
   const { posts, loading, refreshFeeds } = useRss();
-  const { discardedIds, showDiscarded, bookmarkedPosts, showBookmarks } = useStore();
+  const { discardedIds, bookmarkedPosts } = useStore();
+
+  const [showDiscarded, setShowDiscarded] = useState(false);
+  const [showBookmarks, setShowBookmarks] = useState(false);
 
   const filteredPosts = showBookmarks
     ? bookmarkedPosts
@@ -18,7 +22,12 @@ export const MainContent = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <Header />
+      <Header
+        onDiscardPress={() => setShowDiscarded((prev) => !prev)}
+        onBookmarkPress={() => setShowBookmarks((prev) => !prev)}
+        showDiscarded={showDiscarded}
+        showBookmarks={showBookmarks}
+      />
       <View className="flex-1 bg-background">
         <FlatList
           refreshing={loading}
