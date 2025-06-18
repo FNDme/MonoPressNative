@@ -14,38 +14,192 @@ interface ExtendedReadability extends Readability {
   _topCandidate?: Element;
 }
 
+/**
+ * Fetches and cleans HTML content from a URL
+ */
+async function fetchAndCleanHTML(url: string): Promise<string> {
+  const decoder = new TextDecoder('utf-8');
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'text/html; charset=UTF-8',
+    },
+  });
+
+  const htmlText = decoder.decode(await response.arrayBuffer());
+  // Remove style tags to prevent CSS parsing errors
+  return htmlText.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+}
+
+/**
+ * Extracts title from meta tags or document title
+ */
+function extractTitle(doc: Document): string {
+  const metaTitle =
+    doc.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+    doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content') ||
+    doc.querySelector('title')?.textContent;
+
+  return metaTitle ? cleanTitle(metaTitle) : '';
+}
+
+/**
+ * Extracts main image from meta tags or article content
+ */
+function extractMainImage(doc: Document, reader: ExtendedReadability): string {
+  // First try meta tags
+  const metaImage =
+    doc.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
+    doc.querySelector('meta[name="twitter:image"]')?.getAttribute('content');
+
+  if (metaImage) {
+    return metaImage;
+  }
+
+  // Then try the top candidate element
+  if (reader._topCandidate) {
+    const images = reader._topCandidate.getElementsByTagName('img');
+    if (images.length > 0) {
+      const src = images[0].getAttribute('src');
+      if (src) {
+        return src;
+      }
+    }
+  }
+
+  return '';
+}
+
+/**
+ * Processes image source attributes, handling malformed JSON arrays
+ */
+function processImageSrc(src: string | null): string | null {
+  if (!src) return null;
+
+  // Handle malformed src attributes that contain JSON arrays
+  if (src.startsWith('[') && src.endsWith(']')) {
+    try {
+      const srcArray = JSON.parse(src);
+      if (Array.isArray(srcArray) && srcArray.length > 0) {
+        return srcArray[0];
+      }
+    } catch (e) {
+      console.warn('Failed to parse image src JSON:', e);
+    }
+  }
+
+  return src;
+}
+
+/**
+ * Processes srcset attribute to ensure proper formatting
+ */
+function processSrcset(srcset: string): string {
+  return srcset
+    .split(',')
+    .map((src) => {
+      const [url, size] = src.trim().split(' ');
+      return `${url} ${size}`;
+    })
+    .join(', ');
+}
+
+/**
+ * Processes images in the content, cleaning up attributes and removing invalid ones
+ */
+function processImages(mainContent: Element, mainImage: string): void {
+  const images = Array.from(mainContent.getElementsByTagName('img'));
+
+  for (const img of images) {
+    // Skip images that are already processed within picture elements
+    if (img.closest('picture')) continue;
+
+    const src = img.getAttribute('src');
+    const dataSrc = img.getAttribute('data-src');
+    const srcset = img.getAttribute('srcset');
+
+    if (src?.includes(mainImage) || dataSrc?.includes(mainImage) || srcset?.includes(mainImage)) {
+      img.remove();
+      continue;
+    }
+
+    const processedSrc = processImageSrc(src);
+    if (processedSrc) {
+      img.setAttribute('src', processedSrc);
+    }
+
+    if (dataSrc) {
+      img.setAttribute('data-src', dataSrc);
+    }
+
+    if (srcset) {
+      img.setAttribute('srcset', processSrcset(srcset));
+    }
+
+    // Remove images without any valid source
+    if (!processedSrc && !dataSrc && !srcset) {
+      img.remove();
+    }
+  }
+}
+
+/**
+ * Removes figures that don't contain images
+ */
+function cleanupFigures(mainContent: Element): void {
+  const figures = Array.from(mainContent.getElementsByTagName('figure'));
+
+  for (const figure of figures) {
+    const hasImages = figure.getElementsByTagName('img').length > 0;
+    if (!hasImages) {
+      figure.remove();
+    }
+  }
+}
+
+/**
+ * Cleans up the final HTML content by removing unnecessary tags
+ */
+function cleanupContent(html: string): string {
+  return html
+    .replace(/<head>.*?<\/head>/g, '') // Remove head tags
+    .replace(/<body>.*?<\/body>/g, '') // Remove body tags
+    .replace(/<svg[\s\S]*?<\/svg>/g, '') // Remove SVG elements
+    .trim();
+}
+
+/**
+ * Validates that the parsed content is valid and not empty
+ */
+function validateContent(content: string): void {
+  if (!content || content.trim().length === 0) {
+    throw new Error('No content found in the article');
+  }
+}
+
+/**
+ * Main function to parse an article from a URL
+ */
 export async function parseArticle(url: string): Promise<ArticleResponse> {
   if (!url) {
     throw new Error('URL is required');
   }
 
   try {
-    // Fetch the article content through the background service worker
-    const html = await fetch(url);
-    const htmlText = await html.text();
+    // Fetch and clean HTML
+    const cleanedHtml = await fetchAndCleanHTML(url);
 
-    // Remove style tags to prevent CSS parsing errors
-    const cleanedHtml = htmlText.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
-
-    // Create a temporary DOM element to parse the HTML
+    // Parse HTML into document
     const { document: doc } = parseHTML(cleanedHtml);
 
-    // Validate that we have a valid document
+    // Validate document
     if (!doc || typeof doc.querySelector !== 'function') {
       throw new Error('Failed to parse HTML document');
     }
 
-    // Try to get the title from meta tags first
-    let title = '';
-    const metaTitle =
-      doc.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-      doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content') ||
-      doc.querySelector('title')?.textContent;
+    // Extract title from meta tags
+    let title = extractTitle(doc);
 
-    if (metaTitle) {
-      title = cleanTitle(metaTitle);
-    }
-
+    // Parse article content using Readability
     const reader = new Readability(doc, {
       charThreshold: 20,
       classesToPreserve: ['article-image', 'article-content'],
@@ -58,121 +212,42 @@ export async function parseArticle(url: string): Promise<ArticleResponse> {
       throw new Error('Could not parse article content');
     }
 
-    // If we don't have a title from meta tags, use the one from Readability
+    // Use Readability title if we don't have one from meta tags
     if (!title) {
       title = cleanTitle(article.title || '');
     }
 
-    // Try to find the main image
-    let mainImage = '';
+    // Extract main image
+    const mainImage = extractMainImage(doc, reader);
 
-    // First try meta tags
-    const metaImage =
-      doc.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
-      doc.querySelector('meta[name="twitter:image"]')?.getAttribute('content');
-
-    if (metaImage) {
-      mainImage = metaImage;
-    } else if (reader._topCandidate) {
-      // Then try the top candidate element
-      const images = reader._topCandidate.getElementsByTagName('img');
-      if (images.length > 0) {
-        const src = images[0].getAttribute('src');
-        if (src) {
-          mainImage = src;
-        }
-      }
-    }
-
+    // Parse article content
     const { document: contentDoc } = parseHTML(article.content || '');
 
-    // Check if we have valid content
+    // Validate content document
     if (!contentDoc || !contentDoc.body) {
-      console.error('Invalid content document structure');
       throw new Error('Invalid content document structure');
     }
 
-    // Get the main content wrapper
+    // Get main content wrapper
     const mainContent = contentDoc.querySelector('.page') || contentDoc.body;
     if (!mainContent) {
-      console.error('No main content wrapper found');
       throw new Error('No main content wrapper found');
     }
 
-    // Process images more carefully
-    const images = Array.from(mainContent.getElementsByTagName('img'));
+    // Process images and figures
+    processImages(mainContent, mainImage);
+    cleanupFigures(mainContent);
 
-    // Process standalone images
-    for (const img of images) {
-      // Skip images that are already processed within picture elements
-      if (img.closest('picture')) continue;
+    // Clean up final content
+    const processedContent = cleanupContent(mainContent.innerHTML);
 
-      const src = img.getAttribute('src');
-      const dataSrc = img.getAttribute('data-src');
-      const srcset = img.getAttribute('srcset');
-
-      // Handle malformed src attributes that contain JSON arrays
-      let processedSrc = src;
-      if (src && src.startsWith('[') && src.endsWith(']')) {
-        try {
-          const srcArray = JSON.parse(src);
-          if (Array.isArray(srcArray) && srcArray.length > 0) {
-            processedSrc = srcArray[0];
-          }
-        } catch (e) {
-          console.warn('Failed to parse image src JSON:', e);
-        }
-      }
-
-      if (processedSrc) {
-        img.setAttribute('src', processedSrc);
-      }
-      if (dataSrc) {
-        img.setAttribute('data-src', dataSrc);
-      }
-      if (srcset) {
-        const newSrcset = srcset
-          .split(',')
-          .map((src) => {
-            const [url, size] = src.trim().split(' ');
-            return `${url} ${size}`;
-          })
-          .join(', ');
-        img.setAttribute('srcset', newSrcset);
-      }
-
-      if (!src && !dataSrc && !srcset) {
-        img.remove();
-      }
-    }
-
-    // Process figures more carefully
-    const figures = Array.from(mainContent.getElementsByTagName('figure'));
-
-    for (const figure of figures) {
-      const hasImages = figure.getElementsByTagName('img').length > 0;
-      if (!hasImages) {
-        figure.remove();
-      }
-    }
-
-    // Clean up the content
-    let processedContent = mainContent.innerHTML
-      .replace(/<head>.*?<\/head>/g, '') // Remove head tags
-      .replace(/<body>.*?<\/body>/g, '') // Remove body tags
-      .replace(/<svg[\s\S]*?<\/svg>/g, '') // Remove SVG elements
-      .trim();
-
-    // Check if we have content after processing
-    if (!processedContent || processedContent.trim().length === 0) {
-      console.error('No content found after processing');
-      throw new Error('No content found in the article');
-    }
+    // Validate final content
+    validateContent(processedContent);
 
     return {
-      title: title,
+      title,
       content: processedContent,
-      url: url,
+      url,
       image: mainImage,
     };
   } catch (error) {
