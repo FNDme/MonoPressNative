@@ -3,10 +3,16 @@ import { Text } from '../ui/text';
 import { Button } from '../ui/button';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackNavigationProp } from '~/App';
-import { useStore } from '~/store/store';
 
-export const EmptyState = ({ page }: { page: 'home' | 'hidden' | 'bookmarks' }) => {
-  const { toggleDiscarded, toggleBookmarks } = useStore();
+export const EmptyState = ({
+  page,
+  toggleBookmarks,
+  toggleDiscarded,
+}: {
+  page: 'home' | 'hidden' | 'bookmarks';
+  toggleBookmarks: () => void;
+  toggleDiscarded: () => void;
+}) => {
   const navigation = useNavigation<RootStackNavigationProp>();
 
   return (
@@ -14,7 +20,7 @@ export const EmptyState = ({ page }: { page: 'home' | 'hidden' | 'bookmarks' }) 
       {page === 'home' && (
         <>
           <Text className="text-center text-muted-foreground">No posts to display</Text>
-          <Button variant="outline" onPress={() => navigation.navigate('Config')}>
+          <Button variant="outline" onPress={() => navigation.navigate('RSSManagement')}>
             <Text>Add a feed</Text>
           </Button>
         </>

@@ -49,7 +49,11 @@ export const MainContent = () => {
           onScroll={handleScroll}
           scrollEventThrottle={16}
           ListEmptyComponent={
-            <EmptyState page={showBookmarks ? 'bookmarks' : showDiscarded ? 'hidden' : 'home'} />
+            <EmptyState
+              page={showBookmarks ? 'bookmarks' : showDiscarded ? 'hidden' : 'home'}
+              toggleBookmarks={() => setShowBookmarks((prev) => !prev)}
+              toggleDiscarded={() => setShowDiscarded((prev) => !prev)}
+            />
           }
           removeClippedSubviews={true}
         />
