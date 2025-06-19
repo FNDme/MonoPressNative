@@ -11,7 +11,7 @@ import { ChevronUp } from '~/lib/icons/ChevronUp';
 import { ChevronDown } from '~/lib/icons/ChevronDown';
 
 export const PredefinedFeedsCard = () => {
-  const { urls, addUrl, removeUrl } = useStore();
+  const { feeds, addFeed, removeFeed } = useStore();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
 
   const toggleGroup = (publisher: string) => {
@@ -21,7 +21,7 @@ export const PredefinedFeedsCard = () => {
     }));
   };
 
-  const isFeedAdded = (url: string) => urls.includes(url);
+  const isFeedAdded = (url: string) => feeds.some((feed) => feed.url === url);
 
   return (
     <Card>
@@ -36,7 +36,7 @@ export const PredefinedFeedsCard = () => {
                 variant="ghost"
                 className="flex flex-row items-center justify-between"
                 onPress={() =>
-                  group.singleFeed ? addUrl(group.feeds[0].url) : toggleGroup(group.publisher)
+                  group.singleFeed ? addFeed(group.feeds[0]) : toggleGroup(group.publisher)
                 }>
                 <Text className="text-lg font-semibold">{group.publisher}</Text>
                 {group.singleFeed ? (
@@ -62,11 +62,11 @@ export const PredefinedFeedsCard = () => {
                       </View>
                       <View className="flex flex-row gap-2">
                         {isFeedAdded(feed.url) ? (
-                          <Button variant="ghost" size="icon" onPress={() => removeUrl(feed.url)}>
+                          <Button variant="ghost" size="icon" onPress={() => removeFeed(feed.url)}>
                             <CheckCircle size={20} className="text-green-500" />
                           </Button>
                         ) : (
-                          <Button variant="ghost" size="icon" onPress={() => addUrl(feed.url)}>
+                          <Button variant="ghost" size="icon" onPress={() => addFeed(feed)}>
                             <PlusCircle size={20} className="text-muted-foreground" />
                           </Button>
                         )}

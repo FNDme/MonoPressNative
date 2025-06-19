@@ -307,35 +307,40 @@ export const ReaderContent = () => {
                     resizeMode="cover"
                   />
                 )}
-                <View className="mb-4 flex flex-col items-start justify-start gap-2 rounded-lg bg-muted p-4 text-muted-foreground">
+                <View className="mb-4 flex flex-col items-start justify-start gap-3 rounded-lg bg-muted p-4 text-muted-foreground">
                   <TouchableOpacity
                     className="flex flex-row items-center gap-2 text-sm text-muted-foreground"
                     onPress={() => Linking.openURL(article?.url || '')}>
                     <ExternalLink size={16} className="text-muted-foreground" />
                     <Text className="text-sm text-muted-foreground">Read original article</Text>
                   </TouchableOpacity>
-                  <Separator className="bg-muted-foreground" />
+                  <Separator className="bg-muted-foreground opacity-30" />
                   {post?.date && (
                     <View className="flex flex-row items-center gap-2">
                       <Calendar size={16} className="text-muted-foreground" />
                       <Text className="text-sm text-muted-foreground">
-                        {new Date(post?.date).toLocaleDateString() || 'Untitled Article'}
+                        {new Date(post.date).toLocaleString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: false,
+                        })}
                       </Text>
                     </View>
                   )}
                   {post?.author && (
                     <View className="flex flex-row items-center gap-2">
                       <User size={16} className="text-muted-foreground" />
-                      <Text className="text-sm text-muted-foreground">
-                        {post?.author || 'Untitled Article'}
-                      </Text>
+                      <Text className="text-sm text-muted-foreground">{post.author}</Text>
                     </View>
                   )}
                   {post?.source && (
                     <View className="flex flex-row items-center gap-2">
                       <Globe size={16} className="text-muted-foreground" />
                       <Text className="text-sm text-muted-foreground">
-                        {post?.source?.sourceName || 'Untitled Article'}
+                        {post.source.sourceName || post.source.title || 'Unknown Source'}
                       </Text>
                     </View>
                   )}

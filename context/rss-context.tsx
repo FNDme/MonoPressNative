@@ -19,7 +19,7 @@ interface RssContextType {
 const RssContext = createContext<RssContextType | undefined>(undefined);
 
 export function RssProvider({ children }: { children: React.ReactNode }) {
-  const { urls } = useStore();
+  const { feeds } = useStore();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +56,7 @@ export function RssProvider({ children }: { children: React.ReactNode }) {
   );
 
   const fetchFeeds = useCallback(async () => {
-    if (!urls.length) {
+    if (!feeds.length) {
       setPosts([]);
       setLoading(false);
       return;
@@ -66,7 +66,7 @@ export function RssProvider({ children }: { children: React.ReactNode }) {
     setError(null);
 
     try {
-      const results = await Promise.all(urls.map(fetchSingleFeed));
+      const results = await Promise.all(feeds.map((feed) => fetchSingleFeed(feed.url)));
       const uniquePosts = new Map<string, Post>();
 
       results.flat().forEach((post) => {
@@ -86,7 +86,7 @@ export function RssProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [urls, fetchSingleFeed]);
+  }, [feeds, fetchSingleFeed]);
 
   // Create a stable debounced function
   const debouncedFetch = useMemo(() => debounce(fetchFeeds, 500), [fetchFeeds]);

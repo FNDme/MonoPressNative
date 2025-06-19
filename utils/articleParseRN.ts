@@ -229,7 +229,7 @@ export async function parseArticle(url: string): Promise<ArticleResponse> {
     }
 
     // Get main content wrapper
-    const mainContent = contentDoc.querySelector('.page') || contentDoc.body;
+    const mainContent = contentDoc.querySelector('.page') || contentDoc.querySelector('body');
     if (!mainContent) {
       throw new Error('No main content wrapper found');
     }

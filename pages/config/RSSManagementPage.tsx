@@ -1,14 +1,16 @@
 import { ScrollView, View } from 'react-native';
-import { ThemesCard } from './ThemesCard';
-import { RSSManagementCard } from './RSSManagementCard';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '~/components/ui/button';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackNavigationProp } from '~/App';
 import { ChevronLeft } from '~/lib/icons/ChevronLeft';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { AddRSSCard } from './AddRSSCard';
+import { RSSListCard } from './RSSListCard';
+import { PredefinedFeedsCard } from './PredefinedFeedsCard';
 
-export const ConfigContent = () => {
+export const RSSManagementPage = () => {
   const navigation = useNavigation<RootStackNavigationProp>();
+
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1 bg-background">
@@ -18,8 +20,9 @@ export const ConfigContent = () => {
               <ChevronLeft size={24} className="text-foreground" />
             </Button>
           </View>
-          <ThemesCard />
-          <RSSManagementCard />
+          <AddRSSCard />
+          <PredefinedFeedsCard />
+          <RSSListCard />
         </ScrollView>
       </View>
     </SafeAreaView>
