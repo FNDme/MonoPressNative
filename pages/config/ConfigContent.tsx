@@ -1,6 +1,7 @@
 import { ScrollView, View } from 'react-native';
 import { ThemesCard } from './ThemesCard';
 import { RSSManagementCard } from './RSSManagementCard';
+import { AuthorCard } from './AuthorCard';
 import { Button } from '~/components/ui/button';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackNavigationProp } from '~/App';
@@ -20,6 +21,7 @@ export const ConfigContent = () => {
           </View>
           <ThemesCard />
           <RSSManagementCard />
+          <AuthorCard />
         </ScrollView>
       </View>
     </SafeAreaView>
